@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -127,7 +128,7 @@ public class GameControllerScript : MonoBehaviour
         cardOpened2 = null;
         score = 0;
         attempts = 0;
-        timeLeft = TIME_PLAY;
+        timeLeft = 0;
         allCards = new MainImage[NUM_COLUMNS * NUM_ROWS];
         failScreen.SetActive(false);
         qrCodeScreen.SetActive(false);
@@ -180,22 +181,22 @@ public class GameControllerScript : MonoBehaviour
         switch (status)
         {
             case Status.Playing:
-                timeLeft -= Time.deltaTime;
+                timeLeft += Time.deltaTime;
 
-                if (timeLeft <= 0.0f)
+                if (timeLeft >= TIME_PLAY)
                 {
-                    timeLeft = 0f;
                     status = Status.Fail;
                     StartCoroutine(GameFailed());
                 }
-                timerText.text = string.Format(" {0:00}", timeLeft);
+                timerText.text = FormatarTempo(timeLeft);
                 break;
 
             case Status.Finished:
                 timeLeft -= Time.deltaTime;
                 if (timeLeft <= 0.0f)
                 {
-                    Restart();
+                   Restart();
+                   Debug.Log("ACABOU");
                 }
                 buttonText.text = string.Format("{0:00}", timeLeft);
                 break;
@@ -203,6 +204,12 @@ public class GameControllerScript : MonoBehaviour
             default:
                 break;
         }
+    }
+
+    string FormatarTempo(float tempoEmSegundos)
+    {
+        TimeSpan timeSpan = TimeSpan.FromSeconds(tempoEmSegundos);
+        return string.Format("{0:00}:{1:00}", timeSpan.Minutes, timeSpan.Seconds);
     }
 
     private void Restart()
@@ -365,7 +372,7 @@ public class GameControllerScript : MonoBehaviour
         for (int i = 0; i < array.Length; i++)
         {
             int newArray = array[i];
-            int j = Random.Range(i, array.Length);
+            int j = UnityEngine.Random.Range(i, array.Length);
             array[i] = array[j];
             array[j] = newArray;
         }

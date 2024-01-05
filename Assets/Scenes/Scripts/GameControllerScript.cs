@@ -188,7 +188,7 @@ public class GameControllerScript : MonoBehaviour
                     status = Status.Fail;
                     StartCoroutine(GameFailed());
                 }
-                timerText.text = FormatarTempo(timeLeft);
+                timerText.text = FormatTime(timeLeft);
                 break;
 
             case Status.Finished:
@@ -206,7 +206,7 @@ public class GameControllerScript : MonoBehaviour
         }
     }
 
-    string FormatarTempo(float tempoEmSegundos)
+    string FormatTime(float tempoEmSegundos)
     {
         TimeSpan timeSpan = TimeSpan.FromSeconds(tempoEmSegundos);
         return string.Format("{0:00}:{1:00}", timeSpan.Minutes, timeSpan.Seconds);
@@ -299,9 +299,8 @@ public class GameControllerScript : MonoBehaviour
         yield return new WaitForSeconds(1.0f);
         failScreen.SetActive(true);
 
-
-        yield return new WaitForSeconds(10.0f);
-        SceneManager.LoadScene("MainScene");
+        //yield return new WaitForSeconds(10.0f);
+        //SceneManager.LoadScene("MainScene");
     }
 
     private IEnumerator GameSuccess()
@@ -309,11 +308,10 @@ public class GameControllerScript : MonoBehaviour
         
         yield return new WaitForSeconds(1.0f);
         qrCodeScreen.SetActive(true);
-        particles.Play();
+        //particles.Play();
 
-        yield return new WaitForSeconds(10.0f);
-        SceneManager.LoadScene("MainScene");
-
+        //yield return new WaitForSeconds(10.0f);
+        //SceneManager.LoadScene("MainScene");
     }
 
 

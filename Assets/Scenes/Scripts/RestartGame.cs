@@ -20,11 +20,13 @@ public class RestartGame : MonoBehaviour
 
         if (timeLeft <= 0.0f)
         {
+            LogUtil.SendLog(StatusEnum.Jogou, totalTime.text);
             SceneManager.LoadScene("MainScene");
         }
     }
     public void OnMouseDown()
     {
+        LogUtil.SendLog(StatusEnum.Jogou, totalTime.text);
         SceneManager.LoadScene("PlayAgain");
     }
 }

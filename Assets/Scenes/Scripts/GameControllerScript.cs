@@ -4,54 +4,6 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 //using UDPSender;
 
-public class Kalman
-{
-    private float m_x0;
-    private float m_P0;
-    private float m_R0;
-    private float m_Q0;
-    private float m_x;
-    private float m_P;
-    private float m_R;
-    private float m_Q;
-    private float m_maxv;
-
-    public Kalman(float x0, float P0, float R, float Q, float maxv = -1)
-    {
-        m_x0 = x0;
-        m_P0 = P0;
-        m_R0 = R;
-        m_Q0 = Q;
-        m_x = m_x0;
-        m_P = m_P0;
-        m_R = m_R0;
-        m_Q = m_Q0;
-        m_maxv = maxv;
-        if (maxv == -1)
-            m_maxv = x0 * 2;
-    }
-
-    public void reset()
-    {
-        m_x = m_x0;
-        m_P = m_P0;
-        m_R = m_R0;
-        m_Q = m_Q0;
-    }
-
-    public float filter(float z)
-    {
-        if (z > m_maxv)
-            z = m_maxv;
-
-        float K = m_P / (m_P + m_R);
-        m_x = m_x + K * (z - m_x);
-        m_P = (1 - K) * m_P + m_Q;
-
-
-        return m_x;
-    }
-}
 
 public class GameControllerScript : MonoBehaviour
 {
@@ -75,6 +27,9 @@ public class GameControllerScript : MonoBehaviour
 
     public const float SPACE_X = 2.2f;
     public const float SPACE_Y = -2.2f;
+
+    public float maxTimeWithoutClick = 40f; // maximum time without a click in seconds
+    private float elapsedTimeWithoutClick = 0f;
 
     //[SerializeField] private UDPSender udpSender;
 
@@ -105,7 +60,6 @@ public class GameControllerScript : MonoBehaviour
 
     [SerializeField] private GameObject callToActionScreen;
     [SerializeField] private GameObject prepareGame;
-    [SerializeField] private GameObject failScreen;
     [SerializeField] private GameObject qrCodeScreen;
     [SerializeField] private ParticleSystem particles;
 
@@ -130,7 +84,6 @@ public class GameControllerScript : MonoBehaviour
         attempts = 0;
         timeLeft = 0;
         allCards = new MainImage[NUM_COLUMNS * NUM_ROWS];
-        failScreen.SetActive(false);
         qrCodeScreen.SetActive(false);
 
         int[] locations = GenerateRandomLocations(NUM_CARDS);
@@ -175,13 +128,21 @@ public class GameControllerScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //float fps = fpsK.filter(1.0f / Time.deltaTime);
-       // attemptsText.text = string.Format("{0:00}", fps);
-
+        
         switch (status)
         {
             case Status.Playing:
                 timeLeft += Time.deltaTime;
+
+                // If there is no click, increment elapsedTimeWithoutClick
+                elapsedTimeWithoutClick += Time.deltaTime;
+
+                // Check if the elapsed time has reached the maximum time
+                if (elapsedTimeWithoutClick >= maxTimeWithoutClick)
+                {
+                    // Execute the desired action
+                    SceneManager.LoadScene("MainScene");
+                }
 
                 if (timeLeft >= TIME_PLAY)
                 {
@@ -297,7 +258,7 @@ public class GameControllerScript : MonoBehaviour
     private IEnumerator GameFailed()
     {
         yield return new WaitForSeconds(1.0f);
-        failScreen.SetActive(true);
+        qrCodeScreen.SetActive(true);
 
         //yield return new WaitForSeconds(10.0f);
         //SceneManager.LoadScene("MainScene");
@@ -318,10 +279,27 @@ public class GameControllerScript : MonoBehaviour
 
     private IEnumerator CheckGuessed()
     {
+        elapsedTimeWithoutClick = 0f;
+
         if (cardOpened1.spriteId == cardOpened2.spriteId)
         {
+
             cardOpened1.Burst();
             cardOpened2.Burst();
+
+            yield return new WaitForSeconds(0.5f);
+
+            Color cardSpritecolor1 = cardOpened1.GetComponent<SpriteRenderer>().color;
+            cardSpritecolor1.a = 0.5f;
+
+            cardOpened1.GetComponent<SpriteRenderer>().color = cardSpritecolor1;
+
+            Color cardSpritecolor2 = cardOpened2.GetComponent<SpriteRenderer>().color;
+            cardSpritecolor2.a = 0.5f;
+
+            cardOpened2.GetComponent<SpriteRenderer>().color = cardSpritecolor2;
+
+
             score++;
             scoreText.text = "Pontos: " + score;
             //scoreTextPro.text = "Score: " + score;

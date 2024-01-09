@@ -1,4 +1,5 @@
 public enum StatusEnum
 {
-    Jogou
+    Jogou,
+    NãoConcluiu
 }

@@ -22,6 +22,11 @@ public class PrepareGame : MonoBehaviour
 
         if (timeLeft <= 0.0f)
         {
+            if (SceneManager.GetActiveScene().name == "MainScene")
+            {
+                LogUtil.SendLog(StatusEnum.NãoConcluiu);
+                Debug.Log("Não concluiu");
+            }
             SceneManager.LoadScene("MainScene");
         }
     }

@@ -70,6 +70,7 @@ public class LogDataUploader : MonoBehaviour
 
         form.AddField("timePlayed", dataLog.timePlayed);
         form.AddField("status", dataLog.status);
+        form.AddField("timerPoints", dataLog.timerPoints);
 
         // Crie uma requisicao UnityWebRequest para enviar o arquivo
         using (UnityWebRequest www = UnityWebRequest.Post(uploadURL, form))
